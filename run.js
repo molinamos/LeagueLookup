@@ -2,21 +2,8 @@ const http = require('http'),
       url = require('url'),
       fs = require('fs'),
       favicon = require('serve-favicon'),
-      //express = require('express'),
       bodyParser = require('body-parser')
-      riotAPI = require('./js/riot_api_calls.js')
 
-
-//riotAPI.Promise = global.Promise;
-
-//const app = express();
-/*
-app.set('view engine', 'ejs');
-app.use(express.static('public'));
-app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use('/favicon.ico', express.static('public/favicon.ico'));
-app.use(bodyParser.urlencoded({extended: true}));
-*/
 
 const mountRoutes = require('./routes')
 const express = require('express')
@@ -36,8 +23,8 @@ var getIP = function(req, res, next){
 	}
 	
 	req.log = new Date(Date.now()).toString() + ' IP CONNECTING: ' + ipAddress+ ' METHOD: ' + req.method + ' URL: ' + req.originalUrl;
-	console.log(req.log)
-	next()
+	console.log(req.log);
+	next();
 }
 app.use(getIP)
 
@@ -48,7 +35,6 @@ app.get('/', function(req, res){
 app.listen(3000, function(){
 	console.log('Lookout League listening on port 3000!');
 });
-
 
 mountRoutes(app)
 

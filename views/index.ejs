@@ -19,10 +19,10 @@
 
 <body bgcolor="#000000">
 	<div class="container-fluid" style="max-width: 800px;">
-
 		<form action="/summoner" method="get">
-			<div class="input-group mb-3">
+			<div class="input-group mb-3" style="margin-top:5px;">
 
+				<img src="logo.png" class="rounded float-left" alt="...">
 				<!-- input for the summoner name -->
 				<input type="text" class="form-control" name="name" style="float:none;" aria-label="Text input with dropdown button" placeholder="Summoner Name" minlength="3" maxlength="16" value="The Senor Clean">
 
@@ -49,6 +49,9 @@
 
 					<div class="input-group-append">
 				    	<button class="btn btn-primary" style="border-radius: 0px 5px 5px 0px; margin:1px 0px 1px 0px; outline:none; box-shadow:none !important;" type="submit">GO</button>
+				  	</div>
+				  	<div class="input-group-append">
+				    	<button class="btn btn-primary" style="border-radius: 0px 5px 5px 0px; margin:1px 0px 1px 0px; outline:none; box-shadow:none !important;" type="submit" name="update" value="true">UPDATE</button>
 				  	</div>
 			  	</div>
 		</form>
