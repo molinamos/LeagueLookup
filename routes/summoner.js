@@ -3,8 +3,9 @@ const Router = require('express-promise-router'),
     request = require('sync-request'),
     router = new Router(),
     base_url = '.api.riotgames.com/lol/',
+    config = require('../config'),
     version = 'v3',
-    apiKey = 'RGAPI-991d6573-c47f-4f3b-b49f-1bde34130df7',
+    apiKey = config.apiKey,
     gameLimit = 5,
     limitCalls = true
 
