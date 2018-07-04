@@ -2,12 +2,10 @@ const http = require('http'),
       url = require('url'),
       fs = require('fs'),
       favicon = require('serve-favicon'),
-      bodyParser = require('body-parser')
-
-
-const mountRoutes = require('./routes')
-const express = require('express')
-const app = express()
+      bodyParser = require('body-parser'),
+	  mountRoutes = require('./routes')
+      express = require('express'),
+      app = express()
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -22,18 +20,29 @@ var getIP = function(req, res, next){
 		ipAddress = ipAddress.substring(7, ipAddress.length);
 	}
 	
-	req.log = new Date(Date.now()).toString() + ' IP CONNECTING: ' + ipAddress+ ' METHOD: ' + req.method + ' URL: ' + req.originalUrl;
+	req.log = new Date(Date.now()).toString() + ' IP: ' + ipAddress+ ' METHOD: ' + req.method + ' URL: ' + req.originalUrl;
 	console.log(req.log);
+	
+	fs.appendFile('stats/visitors.txt', req.log + "\n", function(err){
+		if(err) throw err;
+	})
+
 	next();
 }
 app.use(getIP)
 
 app.get('/', function(req, res){
-	res.render('index', {summonerInfo: null, accountId: null});
+	res.render('index', {
+        status: "Search a summoner to look up the match history!",
+        searchedName: req.query.name,
+        error: null,
+        summonerInfo: undefined, 
+        summonerMatches: undefined
+    });
 });
 
 app.listen(3000, function(){
-	console.log('Lookout League listening on port 3000!');
+	console.log('Lookout League listening on port 3000! To EXIT press ^C');
 });
 
 mountRoutes(app)

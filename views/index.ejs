@@ -2,74 +2,116 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Index</title>
+	<title>LUL</title>
 
 	<!-- link to acquire bootstrap css -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" href="bootstrap.min.css">
 	<link rel="stylesheet" href="styles.css">
+    <script src="react.production.min.js"></script>
+    <script src="react-dom.production.min.js"></script>
+    <script src="browser.min.js"></script>
 
 	<!-- scripts to change html -->
 	<script>
-	function renameRegion(region){
-		document.getElementById("regionSearch").innerText = region;
-		document.getElementById("regionbox").value = region;
-	}
+		function renameRegion(region){
+			document.getElementById("regionSearch").innerText = region;
+			document.getElementById("regionbox").value = region;
+		}
 	</script>
+
 </head>
-
-<body bgcolor="#000000">
-	<div class="container-fluid" style="max-width: 800px;">
+<!-- style="background-color: #000" -->
+<body>
+	<div class="container-fluid" id="main">
 		<form action="/summoner" method="get">
-			<div class="input-group mb-3" style="margin-top:5px;">
+			<div class="input-group mb-3" id="input_group" >
 
-				<img src="logo.png" class="rounded float-left" alt="...">
+				<a href="/" style="padding: 0px; margin: 0px;"><img src="logo.png" class="rounded float-left" alt="..."></a>
 				<!-- input for the summoner name -->
-				<input type="text" class="form-control" name="name" style="float:none;" aria-label="Text input with dropdown button" placeholder="Summoner Name" minlength="3" maxlength="16" value="The Senor Clean">
+				<% if(searchedName !== null){ %>
+					<input type="text" class="form-control" name="name" style="float:none;" aria-label="Text input with dropdown button" placeholder="Summoner Name" minlength="3" maxlength="16" value='<%= searchedName %>'>
+				<% } else { %>
+					<input type="text" class="form-control" name="name" style="float:none;" aria-label="Text input with dropdown button" placeholder="Summoner Name" minlength="3" maxlength="16" value="">
+				<% } %>
+
+				
 
 				<!-- hidden input to be able to send region to the server -->
 				<input type="hidden" class="form-control" id="regionbox" name="region" style="float:none;" aria-label="Text input with dropdown button" placeholder="Summoner Name" minlength="3" maxlength="16" value="NA1" style="display: none">
 
 				<!-- dropdown element in the summoner search bar -->
-		  		<div class="input-group-prepend">
-				    <button class="btn btn-secondary dropdown-toggle" style="margin:1px 0px 1px -1px; outline:none; box-shadow:none !important;" id="regionSearch" type="button" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false" value="NA1" name="regionSelected">NA1</button>
+				<div class="input-group-prepend">
+					<button class="btn btn-secondary dropdown-toggle" id="regionSearch" type="button" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false" value="NA1" name="regionSelected">NA1</button>
 
-				    <div class="dropdown-menu" style="width: 50px;">
-				      <a class="dropdown-item" onclick="renameRegion('NA1')">NA1</a>
-				      <a class="dropdown-item" onclick="renameRegion('KR')">KR</a>
-				      <a class="dropdown-item" onclick="renameRegion('JP1')">JP1</a>
-				      <a class="dropdown-item" onclick="renameRegion('EUW1')">EUW1</a>
-				      <a class="dropdown-item" onclick="renameRegion('EUN1')">EUN1</a>
-				      <a class="dropdown-item" onclick="renameRegion('OC1')">OC1</a>
-				      <a class="dropdown-item" onclick="renameRegion('BR1')">BR1</a>
-				      <a class="dropdown-item" onclick="renameRegion('LA1')">LA1</a>
-				      <a class="dropdown-item" onclick="renameRegion('LA2')">LA2</a>
-				      <a class="dropdown-item" onclick="renameRegion('RU')">RU</a>
-				      <a class="dropdown-item" onclick="renameRegion('TR1')">TR1</a>
-			    	</div>
+					<div class="dropdown-menu" id="region_button">
+						<a class="dropdown-item" onclick="renameRegion('NA1')">NA1</a>
+						<a class="dropdown-item" onclick="renameRegion('KR')">KR</a>
+						<a class="dropdown-item" onclick="renameRegion('JP1')">JP1</a>
+						<a class="dropdown-item" onclick="renameRegion('EUW1')">EUW1</a>
+						<a class="dropdown-item" onclick="renameRegion('EUN1')">EUN1</a>
+						<a class="dropdown-item" onclick="renameRegion('OC1')">OC1</a>
+						<a class="dropdown-item" onclick="renameRegion('BR1')">BR1</a>
+						<a class="dropdown-item" onclick="renameRegion('LA1')">LA1</a>
+						<a class="dropdown-item" onclick="renameRegion('LA2')">LA2</a>
+						<a class="dropdown-item" onclick="renameRegion('RU')">RU</a>
+						<a class="dropdown-item" onclick="renameRegion('TR1')">TR1</a>
+					</div>
 
 					<div class="input-group-append">
-				    	<button class="btn btn-primary" style="border-radius: 0px 5px 5px 0px; margin:1px 0px 1px 0px; outline:none; box-shadow:none !important;" type="submit">GO</button>
-				  	</div>
-				  	<div class="input-group-append">
-				    	<button class="btn btn-primary" style="border-radius: 0px 5px 5px 0px; margin:1px 0px 1px 0px; outline:none; box-shadow:none !important;" type="submit" name="update" value="true">UPDATE</button>
-				  	</div>
-			  	</div>
+						<button class="btn btn-primary" id="special_button" type="submit">GO</button>
+					</div>
+					<div class="input-group-append">
+						<button class="btn btn-primary" id="special_button" id="special_button" type="submit" name="update" value="true">UPDATE</button>
+					</div>
+				</div>
+			</div>
 		</form>
 
-	  	
+		<div class="container-fluid" style="overflow-wrap: break-word;">
 
+			<% if(status !== null){ %>
+			<p style="text-align: center;"><%= status %></p> 
+			<% } %>
+			<% if(summonerInfo === null){ %>
+			<p>asdf</p> 
+			<% } %>
+
+			<% if(summonerMatches !== null){ %>
+			<p><%= summonerMatches %></p> 
+			<% } %>
+			<% if(summonerMatches === null){ %>
+			<p>asdf</p> 
+			<% } %>
+
+			<div id="app"></div>
+			<div id="demo"></div>
+
+			<script type="text/babel">
+
+				class HelloMessage extends React.Component{
+					render(){
+						return (
+							<div>
+								<h1>Hello {this.props.name}</h1>
+								<h2>You are {this.props.age} years old.</h2>
+							</div>
+						);
+					}
+				}
+
+				<% if(status == null){ %>
+					ReactDOM.render(<HelloMessage name="<%= summonerInfo.name %>" age="22"/>, document.getElementById('app')); 
+				<% } %>
+			</script>
+
+		</div>
 	</div>
 
-	<% if(summonerInfo !== null || summonerInfo !== null){ %>
-	<h1><%= summonerInfo %> <%= accountId %></h1> 
-	<% } %>
 
-
-
-	<!-- scripts require to make bootstrap works -->
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		<!-- scripts require to make bootstrap works -->
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 </body>
 

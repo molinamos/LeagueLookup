@@ -1,2 +1,5 @@
 postgres
+sudo su postgres
 sudo -u postgres psql
+
+/etc/init.d/postgresql restart

@@ -4,7 +4,7 @@ const pool = new Pool({
 	host: 'localhost',
 	database: 'lookup_league',
 	user: 'postgres',
-	password: '12Zxcvbn!qw',
+	password: '1234',
 	port: '5432'
 })
 
