@@ -4,10 +4,14 @@ const Router = require('express-promise-router'),
     router = new Router(),
     base_url = '.api.riotgames.com/lol/',
     config = require('../config'),
+    championFull = require('./championFull'),
+    map = require('./map'),
     version = 'v3',
     apiKey = config.apiKey,
-    gameLimit = 5,
+    gameLimit = 10,
     limitCalls = true
+
+var name
 
 module.exports = router
 
@@ -21,14 +25,21 @@ router.get('/', async (req, res) => {
         matches
 
     if(req.query.update){
+        
+        var url = `https://${region}${base_url}summoner/${version}/summoners/by-name/${summonerName}?api_key=${apiKey}`
 
-        try{
-            var url = `https://${region}${base_url}summoner/${version}/summoners/by-name/${summonerName}?api_key=${apiKey}`
-        }
-        catch(error){
-            console.log("cannot connect to RIOT API servers")
-        }
         var summonerAccountResponse = JSON.parse(request('GET', url).body)
+
+        if(typeof summonerAccountResponse.name == "undefined"){
+            res.render('index', {
+                status: "Not a real summoner. Make sure you spelt it right.",
+                searchedName: req.query.name,
+                error: null,
+                summonerInfo: null, 
+                summonerMatches: null,
+            });
+            return;
+        }
 
         try{
             await db.query(
@@ -37,21 +48,31 @@ router.get('/', async (req, res) => {
             )
         }
         catch(error){
-            //console.log("ERROR: summonerAccount already in database")
+            if(error.code == "ECONNREFUSED"){
+                res.render('index', {
+                    status: "Local servers are down. Site is unavailable.",
+                    searchedName: req.query.name,
+                    error: null,
+                    summonerInfo: null, 
+                    summonerMatches: null,
+                });
+                return;
+            }
+            
         }
 
         summonerAccount = JSON.parse(JSON.stringify(await db.query(
                                 'select * from summoners where sname = $1', 
                                 [summonerName]))).rows[0]
         
-        if(summonerAccount.accountid == null)
+        if(typeof summonerAccount == "undefined")
             summonerAccount = JSON.parse(JSON.stringify(await db.query(
                                                             'select * from summoners ' + 
                                                             'where sname = $1', 
                                                             [summonerName]))).rows[1]
-        
 
         url = `https://${region}.api.riotgames.com/lol/match/${version}/matchlists/by-account/${summonerAccount.accountid}?api_key=${apiKey}`
+
         var summonerHistoryResponse = JSON.parse(request('GET', url).body)
 
         for(var match of summonerHistoryResponse.matches){
@@ -63,30 +84,39 @@ router.get('/', async (req, res) => {
                 )
             }
             catch(error){
-                //console.log("ERROR: summonerhistory already in database")
+                if(error.code == "ECONNREFUSED"){
+                    res.render('index', {
+                        status: "Local servers are down. Site is unavailable.",
+                        searchedName: req.query.name,
+                        error: null,
+                        summonerInfo: null, 
+                        summonerMatches: null,
+                    });
+
+                    return;
+                }
             }
         }
 
-        summonerHistory = JSON.parse(JSON.stringify(
-                                await db.query(
-                                    'select * from summonerhistory ' + 
-                                    'where accountid = $1 ' + 
-                                    'order by summonerhistory.timestamp ' + 
-                                    'limit $2', 
-                                    [summonerAccount.accountid, gameLimit]
-                                )
-                            )).rows
 
-        //summonerHistory = JSON.parse(JSON.stringify(await db.query('select * from summonerhistory where accountid = $1 order by summonerhistory.timestamp', 
-         //                                                           [summonerAccount.accountid]))).rows
+        summonerHistory = JSON.parse(JSON.stringify(
+                            await db.query(
+                                'select * from summonerhistory ' + 
+                                'where accountid = $1 ' + 
+                                'order by summonerhistory.timestamp desc ' + 
+                                'limit $2', 
+                                [summonerAccount.accountid, gameLimit]
+                            )
+                        )).rows
 
         
 
         for(var match of summonerHistory){
 
             url = `https://${region}.api.riotgames.com/lol/match/${version}/matches/${match.gameid}?api_key=${apiKey}`
-            var matchResponse = JSON.parse(request('GET', url).body)
             
+            var matchResponse = JSON.parse(request('GET', url).body)
+
             try{
                 await db.query(
                     'insert into matches(seasonid, queueid, gameid, gameversion, platformid, gamemode, mapid, gametype, gameduration, gamecreation) ' + 
@@ -95,8 +125,12 @@ router.get('/', async (req, res) => {
                 )
             }
             catch(error){
-                //console.log(error)
+                if(error.code != "23505"){
+                    renderError4()
+                    return;
+                }
             }
+
             for(var participant of matchResponse.participants){
 
                 try{
@@ -107,7 +141,10 @@ router.get('/', async (req, res) => {
                     )
                 }
                 catch(error){
-                    //console.log(error)
+                    if(error.code != "23505"){
+                        renderError4()
+                        return;
+                    }
                 }
             }
 
@@ -120,7 +157,10 @@ router.get('/', async (req, res) => {
                     )
                 }
                 catch(error){
-                    //console.log(error)
+                    if(error.code != "23505"){
+                        renderError4()
+                        return;
+                    }
                 }
             }
 
@@ -134,14 +174,24 @@ router.get('/', async (req, res) => {
                     )
                 }
                 catch(error){
-                    //console.log(error)
+                    if(error.code != "23505"){
+                        res.render('index', {
+                            status: "Problem with updating data.",
+                            searchedName: req.query.name,
+                            error: null,
+                            summonerInfo: null, 
+                            summonerMatches: null,
+                        });
+                        return;
+                    }
                 }
             }
 
         }
     }
 
-    if(summonerAccount == null){
+    if(typeof summonerAccount == "undefined"){
+
         summonerAccount = JSON.parse(JSON.stringify(await db.query(
             'select * ' + 
             'from summoners ' + 
@@ -149,34 +199,31 @@ router.get('/', async (req, res) => {
             [summonerName]))).rows[0]
 
         if(typeof summonerAccount == "undefined"){
-            res.render('index', {
-                status: "Summoner data empty. Please search the summoner again but with the 'Update' button instead of the 'GO' button.",
-                searchedName: req.query.name,
-                error: null,
-                summonerInfo: undefined, 
-                summonerMatches: undefined,
-            });
-            return;
-        }
-
-        if(summonerAccount.accountid == null)
             summonerAccount = JSON.parse(JSON.stringify(await db.query(
                 'select * ' + 
                 'from summoners ' + 
                 'where sname = $1', 
                 [summonerName]))).rows[1]
+        }
     }
 
-    summonerMatches = await getSummonerHistory(summonerAccount.accountid, 5)
-
+    if(typeof summonerAccount == "undefined"){
+        res.render('index', renderErrorEmpty(req.query.name));
+        return;
+    }
     matchesTotalInfo = await getMatchesInfo(summonerAccount.accountid, 50)
+
+    for(var element of matchesTotalInfo){
+        element.champion = championFull.keys[element.championid]
+        element.mapid = map.data[element.mapid].MapName
+    }
 
     res.render('index', {
         status: null,
         searchedName: req.query.name,
         error: null,
         summonerInfo: summonerAccount, 
-        summonerMatches: summonerMatches,
+        summonerMatches: matchesTotalInfo,
     });
     
     //res.setHeader('Content-Type', 'application/json');
@@ -185,21 +232,6 @@ router.get('/', async (req, res) => {
     //res.json({summonerAccount: summonerAccount, summonerMatches: summonerMatches});
 })
 
-async function getSummonerHistory(accountid, limit){
-    return JSON.parse(JSON.stringify(
-                await db.query(
-                    'select M.* ' + 
-                    'from matches M ' + 
-                        'join summonerhistory S on S.gameid = M.gameid ' + 
-                    'where S.accountid = $1 ' + 
-                        'and M.gameid = S.gameid ' + 
-                    'order by M.gamecreation ' + 
-                    'limit $2', 
-                    [accountid, limit]
-                )
-            )).rows
-}
-
 async function getMatchesInfo(accountid, limit){
     return JSON.parse(JSON.stringify(
                 await db.query(
@@ -207,13 +239,24 @@ async function getMatchesInfo(accountid, limit){
                     'from matches M ' + 
                         'join matchparticipantidentities MPI on MPI.gameid = M.gameid ' + 
                         'join matchparticipants MP on MP.gameid = M.gameid ' + 
-                        'join summonerhistory S on S.gameid = M.gameid ' + 
-                    'where S.accountid = $1 ' + 
-                        'and M.gameid = S.gameid ' + 
+                        'join summonerhistory SH on SH.gameid = M.gameid ' + 
+                        'join matchteams MT on MT.gameid = M.gameid ' + 
+                    'where SH.accountid = $1 ' +  
                         'and MP.participantid = MPI.participantid ' + 
-                    'order by M.gamecreation ' + 
+                        'and MP.teamid = MT.teamid ' +
+                    'order by SH.timestamp desc, MP.participantid ' + 
                     'limit $2', 
                     [accountid, limit]
                 )
             )).rows
+}
+
+function renderErrorEmpty(name){
+    return  {
+        status: "Summoner data empty. Please search the summoner again but with the 'Update' button instead of the 'GO' button.",
+        searchedName: name,
+        error: null,
+        summonerInfo: null, 
+        summonerMatches: null,
+    }
 }

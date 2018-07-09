@@ -21,7 +21,7 @@
 
 </head>
 <!-- style="background-color: #000" -->
-<body>
+<body style="margin-bottom: 20px;">
 	<div class="container-fluid" id="main">
 		<form action="/summoner" method="get">
 			<div class="input-group mb-3" id="input_group" >
@@ -33,8 +33,6 @@
 				<% } else { %>
 					<input type="text" class="form-control" name="name" style="float:none;" aria-label="Text input with dropdown button" placeholder="Summoner Name" minlength="3" maxlength="16" value="">
 				<% } %>
-
-				
 
 				<!-- hidden input to be able to send region to the server -->
 				<input type="hidden" class="form-control" id="regionbox" name="region" style="float:none;" aria-label="Text input with dropdown button" placeholder="Summoner Name" minlength="3" maxlength="16" value="NA1" style="display: none">
@@ -70,44 +68,53 @@
 		<div class="container-fluid" style="overflow-wrap: break-word;">
 
 			<% if(status !== null){ %>
-			<p style="text-align: center;"><%= status %></p> 
-			<% } %>
-			<% if(summonerInfo === null){ %>
-			<p>asdf</p> 
+				<p style="text-align: center;"><%= status %></p> 
 			<% } %>
 
-			<% if(summonerMatches !== null){ %>
-			<p><%= summonerMatches %></p> 
+			<% if(summonerInfo !== null){ %>
+				<div>
+					<img src='img/profileicon/<%= summonerInfo.profileiconid %>.png' class="rounded float-left" alt="..." style="max-height: 64px; max-width: 64px; margin-right: 10px;">
+					<h1 style="display: inline-block;"><%= summonerInfo.name %></h1>
+					<a href="http://localhost:3000/summoner?name=<%= searchedName %>&region=NA1&update=true" style="display: inline-block;">
+						<button class="btn btn-primary" id="special_button" id="special_button" type="submit" name="update" value="true" style=" margin-top: -10px; border-radius: 5px 5px 5px 5px;">UPDATE </button>
+					</a>
+					<h4 style="margin-top: -15px;">Level <%= summonerInfo.summonerlevel %></h4>	
+				</div>
 			<% } %>
-			<% if(summonerMatches === null){ %>
-			<p>asdf</p> 
-			<% } %>
 
-			<div id="app"></div>
-			<div id="demo"></div>
-
-			<script type="text/babel">
-
-				class HelloMessage extends React.Component{
-					render(){
-						return (
-							<div>
-								<h1>Hello {this.props.name}</h1>
-								<h2>You are {this.props.age} years old.</h2>
-							</div>
-						);
-					}
-				}
-
-				<% if(status == null){ %>
-					ReactDOM.render(<HelloMessage name="<%= summonerInfo.name %>" age="22"/>, document.getElementById('app')); 
-				<% } %>
-			</script>
+			<% if(summonerInfo !== null){ %>
+				<% summonerMatches.forEach(function(element) { %>
+					<% if(element.participantid == 1 ) { %>
+						<div style="padding: 0; background-color: #000; margin: 0px; width: 100%; display: inline-block;">
+					<% } %>
+					<% if(element.participantid == 1 || element.participantid == 6) { %>
+					  	<% if(element.win == "Win") { %>
+							<div  style="display: inline-block; background-color: #a3cfec; width: 50%; margin: 0; padding: 3px; float: right;">
+								<table style="width:100%;">
+						<% } else { %>
+							<div  style="display: inline-block; background-color: #e2b6b3; width: 50%; margin: 0; padding: 3px; float: right;">
+								<table style="width:100%;">
+						<% } %>
+					<% } %>
+					<tr style="margin: 0px; padding: 0px;">
+    					<% if(element.summonername == summonerInfo.name) { %>
+	        				<td style="font-size: 13px; padding: 0px; margin: 0px;"><img src='img/champion/<%= element.champion %>.png' class="float-left" alt="..." style="max-height: 32px; max-width: 32px; margin-right: 10px; border-radius: 50%;"></td>
+						<% } else { %>
+							<td style="font-size: 13px; padding: 0px; margin: 0px;"><img src='img/champion/<%= element.champion %>.png' class="rounded float-left" alt="..." style="max-height: 32px; max-width: 32px; margin-right: 10px; border-radius: 50%;"></td>
+						<% } %>
+	        			<td style="font-size: 13px; padding: 0px; margin: 0px;"><%= element.summonername %></td>
+	        		</tr>
+	        		<% if(element.participantid == 5 || element.participantid == 10) { %> 
+							</table>
+						</div>
+					<% } %>
+					<% if(element.participantid == 10 ) { %>
+						</div>
+					<% } %>
+	    		<% }); %>
+    		<% } %>
 
 		</div>
-	</div>
-
-
 		<!-- scripts require to make bootstrap works -->
 		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

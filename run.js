@@ -36,8 +36,8 @@ app.get('/', function(req, res){
         status: "Search a summoner to look up the match history!",
         searchedName: req.query.name,
         error: null,
-        summonerInfo: undefined, 
-        summonerMatches: undefined
+        summonerInfo: null, 
+        summonerMatches: null
     });
 });
 
